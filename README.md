@@ -20,12 +20,13 @@
 7. [📦 Application Management](#application-management)
 8. [📂 File Operations](#file-operations)
 9. [⚙️ System Operations](#system-operations)
-10. [🔍 Debugging Tools](#debugging-tools)
-11. [⌨️ Input Simulation](#input-simulation)
-12. [🖥️ Screen Operations](#screen-operations)
-13. [💾 Backup and Restore](#backup-and-restore)
-14. [🔐 Permissions Management](#permissions-management)
-15. [⚡ Shared Preferences](#shared-preferences)
+10. [🌐 Network Operations](#network-operations)
+11. [🔍 Debugging Tools](#debugging-tools)
+12. [⌨️ Input Simulation](#input-simulation)
+13. [🖥️ Screen Operations](#screen-operations)
+14. [💾 Backup and Restore](#backup-and-restore)
+15. [🔐 Permissions Management](#permissions-management)
+16. [⚡ Shared Preferences](#shared-preferences)
 
 ## 🎯 Introduction
 The Android Debug Bridge (ADB) is a versatile command-line tool that lets you communicate with a device. It facilitates various device operations, such as installing and debugging apps, and it provides access to a Unix shell that you can use to run a variety of commands on a device.
@@ -280,6 +281,28 @@ $ adb shell getprop ro.build.version.sdk    # Get SDK version
 $ adb shell getprop ro.product.model       # Get device model
 $ adb shell getprop ro.product.manufacturer # Get manufacturer
 $ adb shell getprop ro.product.cpu.abi      # Get CPU architecture
+$ adb shell getprop ro.gsi.image_running    # Check if GSI is running
+$ adb shell getprop ro.gsi.active           # Check if GSI is active
+$ adb shell getprop ro.gsi.status           # Get GSI status
+
+# Partition Information
+$ adb shell ls -la /dev/block/by-name/      # List partitions by name
+$ adb shell ls -la /dev/block/platform/     # List platform partitions
+$ adb shell cat /proc/partitions            # Show partition table
+$ adb shell df                               # Show disk usage
+$ adb shell mount                            # Show mounted partitions
+$ adb shell blkid                            # Show partition UUIDs
+$ adb shell fdisk -l                         # Show partition details
+
+# EMC Storage Commands
+$ adb shell ls -la /dev/block/mmcblk*       # List EMC storage devices
+$ adb shell cat /proc/emmc                  # Show EMC partition info
+$ adb shell cat /proc/emmc_partitions       # Show EMC partition table
+$ adb shell dd if=/dev/block/mmcblk0 of=/sdcard/emmc_backup.img bs=1M  # Backup EMC
+$ adb shell dd if=/sdcard/emmc_backup.img of=/dev/block/mmcblk0 bs=1M  # Restore EMC
+$ adb shell fdisk /dev/block/mmcblk0        # Partition EMC storage
+$ adb shell e2fsck /dev/block/mmcblk0p1     # Check EMC filesystem
+$ adb shell tune2fs /dev/block/mmcblk0p1    # Tune EMC filesystem
 
 # System Control
 $ adb shell svc power stayon true          # Keep screen on
@@ -288,6 +311,83 @@ $ adb shell svc data enable                # Enable mobile data
 $ adb shell svc data disable               # Disable mobile data
 $ adb shell svc wifi enable                # Enable WiFi
 $ adb shell svc wifi disable               # Disable WiFi
+```
+
+## 🌐 Network Operations
+Tools for:
+- 📡 Managing network connections
+- 🌍 Configuring network settings
+- 📊 Monitoring network status
+- 🔧 Troubleshooting network issues
+- 📱 Managing mobile data and WiFi
+
+```bash
+# Network Information
+$ adb shell ip addr show                    # Show IP addresses
+$ adb shell ip route show                   # Show routing table
+$ adb shell netstat                         # Show network statistics
+$ adb shell netstat -tuln                   # Show listening ports
+$ adb shell ss -tuln                        # Show socket statistics
+$ adb shell cat /proc/net/dev               # Show network interfaces
+$ adb shell cat /proc/net/route             # Show routing information
+
+# WiFi Commands
+$ adb shell svc wifi enable                 # Enable WiFi
+$ adb shell svc wifi disable                # Disable WiFi
+$ adb shell dumpsys wifi                    # Show WiFi information
+$ adb shell dumpsys wifi | grep "mWifiInfo" # Show WiFi connection info
+$ adb shell dumpsys wifi | grep "mScanResults" # Show available networks
+$ adb shell settings put global wifi_on 1   # Enable WiFi via settings
+$ adb shell settings put global wifi_on 0   # Disable WiFi via settings
+
+# Mobile Data Commands
+$ adb shell svc data enable                 # Enable mobile data
+$ adb shell svc data disable                # Disable mobile data
+$ adb shell dumpsys telephony.registry      # Show telephony information
+$ adb shell dumpsys connectivity            # Show connectivity information
+$ adb shell settings put global mobile_data 1  # Enable mobile data via settings
+$ adb shell settings put global mobile_data 0  # Disable mobile data via settings
+
+# Network Configuration
+$ adb shell ip link set wlan0 up            # Bring up WiFi interface
+$ adb shell ip link set wlan0 down          # Bring down WiFi interface
+$ adb shell ip addr add 192.168.1.100/24 dev wlan0  # Set static IP
+$ adb shell ip route add default via 192.168.1.1  # Set default gateway
+$ adb shell iwconfig                         # Configure wireless interface
+$ adb shell iwlist wlan0 scan               # Scan for WiFi networks
+
+# Network Testing
+$ adb shell ping google.com                 # Test internet connectivity
+$ adb shell ping -c 4 8.8.8.8              # Ping with count
+$ adb shell traceroute google.com           # Trace route to host
+$ adb shell nslookup google.com             # DNS lookup
+$ adb shell dig google.com                  # DNS query
+$ adb shell curl -I https://google.com      # Test HTTP connection
+$ adb shell wget https://google.com         # Download file
+
+# Network Monitoring
+$ adb shell cat /proc/net/tcp               # Show TCP connections
+$ adb shell cat /proc/net/udp               # Show UDP connections
+$ adb shell cat /proc/net/unix              # Show Unix domain sockets
+$ adb shell cat /proc/net/dev               # Show network interface statistics
+$ adb shell cat /proc/net/snmp              # Show SNMP statistics
+$ adb shell cat /proc/net/netstat           # Show network statistics
+
+# Network Security
+$ adb shell iptables -L                     # List firewall rules
+$ adb shell iptables -A INPUT -p tcp --dport 80 -j ACCEPT  # Allow HTTP
+$ adb shell iptables -A INPUT -p tcp --dport 443 -j ACCEPT # Allow HTTPS
+$ adb shell iptables -F                     # Flush firewall rules
+$ adb shell iptables -P INPUT DROP          # Set default policy to DROP
+$ adb shell iptables -P INPUT ACCEPT        # Set default policy to ACCEPT
+
+# Network Debugging
+$ adb shell tcpdump -i wlan0                # Capture WiFi traffic
+$ adb shell tcpdump -i any                  # Capture all traffic
+$ adb shell tcpdump -w /sdcard/capture.pcap # Save capture to file
+$ adb shell tcpdump -r /sdcard/capture.pcap # Read capture file
+$ adb shell tcpdump port 80                 # Capture HTTP traffic
+$ adb shell tcpdump port 443                # Capture HTTPS traffic
 ```
 
 ## 🔍 Debugging Tools
@@ -486,4 +586,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 <div align="center">
 Made with ❤️ by Android Developers
-</div> 
+</div>
